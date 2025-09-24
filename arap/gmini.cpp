@@ -106,17 +106,15 @@ void testlinearSystem() {
     // You can get inspiration from this piece of code :
     {
         linearSystem mySystem;
-        mySystem.setDimensions(4 , 3);
+        mySystem.setDimensions(3 , 3);
 
-        mySystem.A(0,0) = 1.0;  mySystem.A(0,1) = 2.0;  mySystem.A(0,2) = 4.0;
-        mySystem.A(1,0) = 1.0;  mySystem.A(1,2) = 1.0;
-        mySystem.A(2,0) = -1.0;  mySystem.A(2,1) = 1.0;
-        mySystem.A(3,1) = -1.0;  mySystem.A(3,2) = 4.0;
+        mySystem.A(0,0) = 1.0;  mySystem.A(0,1) = 1.0;  mySystem.A(0,2) = 0.0;
+        mySystem.A(1,0) = 0.0;  mySystem.A(1,1) = 1.0;  mySystem.A(1,2) = 1.0;
+        mySystem.A(2,0) = 1.0;  mySystem.A(2,1) = 0.0;  mySystem.A(2,2) = 1.0;
         // the values that are not set with mySystem.A(row,column) = value, are set to 0 by default.
-        mySystem.b(0) = 5.0;
-        mySystem.b(1) = 6.0;
-        mySystem.b(2) = 2.0;
-        mySystem.b(3) = 4.0;
+        mySystem.b(0) = 1.0;
+        mySystem.b(1) = 0.0;
+        mySystem.b(2) = 0.0;
 
         mySystem.preprocess();
         Eigen::VectorXd X;
@@ -169,13 +167,16 @@ void updateSystem() {
 
     for( unsigned int v = 0 ; v < mesh.V.size() ; ++v ) {
         unsigned int numberOfNeighbors = edgeAndVertexWeights.get_n_adjacent_edges(v);
-        nrows += 0;   // WHAT TO PUT HERE ??????? How to update the number of rows ?
+        nrows += numberOfNeighbors * 3;   // WHAT TO PUT HERE ??????? How to update the number of rows ?
     }
     for( unsigned int v = 0 ; v < mesh.V.size() ; ++v ) {
         if(verticesHandles[v] != -1) {
-            nrows += 0;  // WHAT TO PUT HERE ??????? How to update the number of rows ?
+            
+            nrows += 3;  // WHAT TO PUT HERE ??????? How to update the number of rows ?
         }
     }
+
+    ncolumns = 3 * mesh.V.size();
 
     // Once the number of rows and columns have been found, we can allocate the matrices:
     arapLinearSystem.setDimensions( nrows , ncolumns );
@@ -185,19 +186,40 @@ void updateSystem() {
 
     unsigned int equationIndex = 0;
     for( unsigned int v = 0 ; v < mesh.V.size() ; ++v ) {
+
         for( std::map< unsigned int , double >::const_iterator it = edgeAndVertexWeights.get_weight_of_adjacent_edges_it_begin(v) ;
              it != edgeAndVertexWeights.get_weight_of_adjacent_edges_it_end(v) ; ++it) {
 
             unsigned int vNeighbor = it->first;
 
-            // WHAT TO PUT HERE ??????? How to update the entries of A ?
+            unsigned int xV = v * 3;
+            unsigned int xvNeighbor = vNeighbor  * 3;
+
+            unsigned int yV = equationIndex * 3;
+
+            arapLinearSystem.A(yV, xV) = 1.0; 
+            arapLinearSystem.A(yV+1, xV+1) = 1.0; 
+            arapLinearSystem.A(yV+2, xV+2) = 1.0; 
+            
+            arapLinearSystem.A(yV, xvNeighbor) = -1.0; 
+            arapLinearSystem.A(yV+1, xvNeighbor+1) = -1.0; 
+            arapLinearSystem.A(yV+2, xvNeighbor+2) = -1.0; 
+            
+            equationIndex++;
 
         }
     }
     for( unsigned int v = 0 ; v < mesh.V.size() ; ++v ) {
         if(verticesHandles[v] != -1) {
 
-            // WHAT TO PUT HERE ??????? How to update the entries of A ?
+            unsigned int xV = v * 3;
+            unsigned int yV = equationIndex * 3;
+
+            arapLinearSystem.A(yV, xV) = 1.0; 
+            arapLinearSystem.A(yV+1, xV+1) = 1.0; 
+            arapLinearSystem.A(yV+2, xV+2) = 1.0; 
+
+            equationIndex++;
 
         }
     }
