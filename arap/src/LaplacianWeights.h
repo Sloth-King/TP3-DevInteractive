@@ -136,9 +136,9 @@ public:
             unsigned int vertex_1_idx = mesh.T[i].v[1];
             unsigned int vertex_2_idx = mesh.T[i].v[2];
 
-            Vec3 p0 = mesh.V[vertex_0_idx].p - mesh.V[vertex_1_idx].p;
-            Vec3 p1 = mesh.V[vertex_0_idx].p - mesh.V[vertex_2_idx].p;
-            Vec3 p2 = mesh.V[vertex_1_idx].p - mesh.V[vertex_2_idx].p; 
+            Vec3 p0 = mesh.V[vertex_0_idx].pInit - mesh.V[vertex_1_idx].pInit;
+            Vec3 p1 = mesh.V[vertex_0_idx].pInit - mesh.V[vertex_2_idx].pInit;
+            Vec3 p2 = mesh.V[vertex_1_idx].pInit - mesh.V[vertex_2_idx].pInit; 
 
             edge_weights[vertex_0_idx][vertex_1_idx] = 0.5f * Vec3::dot(p1,p2) / Vec3::cross(p1, p2).length() ;
             edge_weights[vertex_1_idx][vertex_0_idx] = 0.5f * Vec3::dot(p1,p2) / Vec3::cross(p1, p2).length() ;

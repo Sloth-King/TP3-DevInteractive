@@ -248,7 +248,10 @@ void updateMeshVertexPositionsFromARAPSolver() {
         for( unsigned int v = 0 ; v < mesh.V.size() ; ++v ) {
             for( std::map< unsigned int , double >::const_iterator it = edgeAndVertexWeights.get_weight_of_adjacent_edges_it_begin(v) ;
                  it != edgeAndVertexWeights.get_weight_of_adjacent_edges_it_end(v) ; ++it) {
+
                 unsigned int vNeighbor = it->first;
+                double vWeight = it->second;
+                
                 Eigen::VectorXd rotatedEdge(3);
                 for( unsigned int coord = 0 ; coord < 3 ; ++coord )
                 {
@@ -261,7 +264,7 @@ void updateMeshVertexPositionsFromARAPSolver() {
 
                 for( unsigned int coord = 0 ; coord < 3 ; ++coord )
                 {
-                    arapLinearSystem.b(equationIndex * 3 + coord) = rotatedEdge[coord];
+                    arapLinearSystem.b(equationIndex * 3 + coord) = rotatedEdge[coord] * vWeight;
                 }
 
                 equationIndex++;
@@ -313,7 +316,7 @@ void updateMeshVertexPositionsFromARAPSolver() {
                 }
 
                 // WHAT TO PUT HERE ??????? How to update the entries of the tensor matrix ?
-                tensorMatrix -= rotatedEdge * initialEdge.transpose();
+                tensorMatrix += rotatedEdge * initialEdge.transpose();
 
             }
             vertexRotationMatrices[v] = getClosestRotation( tensorMatrix );
