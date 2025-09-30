@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "Mesh.h"
+#include "Vec3.h"
 
 
 
@@ -123,11 +124,31 @@ public:
         resize(mesh.V.size());
 
         // For each triangle : 
-            // Compute its edge p0, p1, p2
-            // Compute opposite angle for each edge
-            // Compute cotangent of this angle
-            // Add to edge weight 
+        // Compute its edge p0, p1, p2
+        // Compute opposite angle for each edge
+        // Compute cotangent of this angle
+        // Add to edge weight 
 
+        int nbTriangles = mesh.T.size();
+        for(int i = 0 ; i < nbTriangles ; i++)
+        {
+            unsigned int vertex_0_idx = mesh.T[i].v[0];
+            unsigned int vertex_1_idx = mesh.T[i].v[1];
+            unsigned int vertex_2_idx = mesh.T[i].v[2];
+
+            Vec3 p0 = mesh.V[vertex_0_idx].p - mesh.V[vertex_1_idx].p;
+            Vec3 p1 = mesh.V[vertex_0_idx].p - mesh.V[vertex_2_idx].p;
+            Vec3 p2 = mesh.V[vertex_1_idx].p - mesh.V[vertex_2_idx].p; 
+
+            edge_weights[vertex_0_idx][vertex_1_idx] = 0.5f * Vec3::dot(p1,p2) / Vec3::cross(p1, p2).length() ;
+            edge_weights[vertex_1_idx][vertex_0_idx] = 0.5f * Vec3::dot(p1,p2) / Vec3::cross(p1, p2).length() ;
+
+            edge_weights[vertex_1_idx][vertex_2_idx] = 0.5f * Vec3::dot(p0,p1) / Vec3::cross(p0, p1).length() ;
+            edge_weights[vertex_2_idx][vertex_1_idx] = 0.5f * Vec3::dot(p0,p1) / Vec3::cross(p0, p1).length() ;
+
+            edge_weights[vertex_0_idx][vertex_2_idx] = 0.5f * Vec3::dot(p0,p2) / Vec3::cross(p0, p2).length() ;
+            edge_weights[vertex_2_idx][vertex_0_idx] = 0.5f * Vec3::dot(p0,p2) / Vec3::cross(p0, p2).length() ;
+        }
 
     }
 

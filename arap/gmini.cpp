@@ -191,19 +191,20 @@ void updateSystem() {
              it != edgeAndVertexWeights.get_weight_of_adjacent_edges_it_end(v) ; ++it) {
 
             unsigned int vNeighbor = it->first;
+            double vWeight = it->second;
 
             unsigned int xV = v * 3;
             unsigned int xvNeighbor = vNeighbor  * 3;
 
             unsigned int yV = equationIndex * 3;
 
-            arapLinearSystem.A(yV, xV) = 1.0; 
-            arapLinearSystem.A(yV+1, xV+1) = 1.0; 
-            arapLinearSystem.A(yV+2, xV+2) = 1.0; 
+            arapLinearSystem.A(yV, xV) = 1.0 * vWeight; 
+            arapLinearSystem.A(yV+1, xV+1) = 1.0 * vWeight; 
+            arapLinearSystem.A(yV+2, xV+2) = 1.0 * vWeight; 
             
-            arapLinearSystem.A(yV, xvNeighbor) = -1.0; 
-            arapLinearSystem.A(yV+1, xvNeighbor+1) = -1.0; 
-            arapLinearSystem.A(yV+2, xvNeighbor+2) = -1.0; 
+            arapLinearSystem.A(yV, xvNeighbor) = -1.0 * vWeight; 
+            arapLinearSystem.A(yV+1, xvNeighbor+1) = -1.0 * vWeight; 
+            arapLinearSystem.A(yV+2, xvNeighbor+2) = -1.0 * vWeight; 
             
             equationIndex++;
 
@@ -231,13 +232,13 @@ void updateSystem() {
 
 
 void updateMeshVertexPositionsFromARAPSolver() {
-    return; // TODO : COMMENT THIS LINE WHEN YOU START THE EXERCISE  (setup of the matrix A for the linear system A.X=B)
+    // return; // TODO : COMMENT THIS LINE WHEN YOU START THE EXERCISE  (setup of the matrix A for the linear system A.X=B)
     updateSystem();
 
-    unsigned int maxIterationsForArap = 5;
+    unsigned int maxIterationsForArap = 6;
 
 
-    return; // TODO : COMMENT THIS LINE WHEN YOU CONTINUE THE EXERCISE  (setup of the vector B for the linear system A.X=B)
+    // return; // TODO : COMMENT THIS LINE WHEN YOU CONTINUE THE EXERCISE  (setup of the vector B for the linear system A.X=B)
     // set the right values for the vector b in the linear system, solve the linear system and update the positions using the solution.
 
 
@@ -250,10 +251,20 @@ void updateMeshVertexPositionsFromARAPSolver() {
                 unsigned int vNeighbor = it->first;
                 Eigen::VectorXd rotatedEdge(3);
                 for( unsigned int coord = 0 ; coord < 3 ; ++coord )
+                {
                     rotatedEdge[coord] = mesh.V[vNeighbor].pInit[coord]  -  mesh.V[v].pInit[coord];
+                }
+
                 rotatedEdge = vertexRotationMatrices[v] * rotatedEdge;
 
                 // WHAT TO PUT HERE ??????? How to update the entries of b ?
+
+                for( unsigned int coord = 0 ; coord < 3 ; ++coord )
+                {
+                    arapLinearSystem.b(equationIndex * 3 + coord) = rotatedEdge[coord];
+                }
+
+                equationIndex++;
 
             }
         }
@@ -261,6 +272,13 @@ void updateMeshVertexPositionsFromARAPSolver() {
             if(verticesHandles[v] != -1) {
 
                 // WHAT TO PUT HERE ??????? How to update the entries of b ?
+                unsigned int yV = equationIndex * 3;
+
+                arapLinearSystem.b(yV) = mesh.V[v].p[0]; 
+                arapLinearSystem.b(yV+1) = mesh.V[v].p[1];
+                arapLinearSystem.b(yV+2) = mesh.V[v].p[2];
+
+                equationIndex++;
 
             }
         }
@@ -277,7 +295,7 @@ void updateMeshVertexPositionsFromARAPSolver() {
 
 
 
-        return; // TODO : COMMENT THIS LINE WHEN YOU CONTINUE THE EXERCISE (update of the rotation matrices -- auxiliary variables)
+        // return; // TODO : COMMENT THIS LINE WHEN YOU CONTINUE THE EXERCISE (update of the rotation matrices -- auxiliary variables)
 
 
 
@@ -295,6 +313,7 @@ void updateMeshVertexPositionsFromARAPSolver() {
                 }
 
                 // WHAT TO PUT HERE ??????? How to update the entries of the tensor matrix ?
+                tensorMatrix -= rotatedEdge * initialEdge.transpose();
 
             }
             vertexRotationMatrices[v] = getClosestRotation( tensorMatrix );
@@ -837,8 +856,7 @@ void key (unsigned char keyPressed, int x, int y) {
         break;
     }
     idle ();
-}
-
+} 
 
 void mouse (int button, int state, int x, int y) {
     if( glutGetModifiers() & GLUT_ACTIVE_CTRL    ||   rectangleSelectionTool.isActive ) { // we can activate the selection only with ctrl pressed

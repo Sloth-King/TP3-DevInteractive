@@ -25,7 +25,7 @@ CPP = g++
 
 # options du compilateur          
 CFLAGS = -O3
-CXXFLAGS = -w -O3
+CXXFLAGS = -w -O0 -g
 
 # option du preprocesseur
 CPPFLAGS =  -I$(INCDIR) 
