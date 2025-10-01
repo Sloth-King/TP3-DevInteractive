@@ -198,13 +198,13 @@ void updateSystem() {
 
             unsigned int yV = equationIndex * 3;
 
-            arapLinearSystem.A(yV, xV) = 1.0 * vWeight; 
-            arapLinearSystem.A(yV+1, xV+1) = 1.0 * vWeight; 
-            arapLinearSystem.A(yV+2, xV+2) = 1.0 * vWeight; 
+            arapLinearSystem.A(yV, xV) =     -1.0 * vWeight; 
+            arapLinearSystem.A(yV+1, xV+1) = -1.0 * vWeight; 
+            arapLinearSystem.A(yV+2, xV+2) = -1.0 * vWeight; 
             
-            arapLinearSystem.A(yV, xvNeighbor) = -1.0 * vWeight; 
-            arapLinearSystem.A(yV+1, xvNeighbor+1) = -1.0 * vWeight; 
-            arapLinearSystem.A(yV+2, xvNeighbor+2) = -1.0 * vWeight; 
+            arapLinearSystem.A(yV, xvNeighbor) =     1.0 * vWeight; 
+            arapLinearSystem.A(yV+1, xvNeighbor+1) = 1.0 * vWeight; 
+            arapLinearSystem.A(yV+2, xvNeighbor+2) = 1.0 * vWeight; 
             
             equationIndex++;
 
